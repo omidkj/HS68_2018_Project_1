@@ -30,3 +30,16 @@ class FeatureRemover():
 
         print('%d columns with greater than %0.2f missing values.\n' % (len(self.missing_col), self.missing_thresh))
         return missing_col
+
+        
+
+    def single_value(self, data):
+        single_unique = []
+        for i in range(data.shape[1]):
+            if len(np.unique(data[:,i], axis=0)) == 1:
+                single_unique += [i]
+
+        self.single_unique = np.array(single_unique)
+        print('%d columns with a single unique value.\n' % len(self.single_unique))
+
+        return np.array(single_unique)
