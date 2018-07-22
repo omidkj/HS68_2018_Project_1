@@ -1,6 +1,11 @@
 
 
 import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
+
+
+
 class FeatureRemover():
 
     def __init__(self):
@@ -9,7 +14,7 @@ class FeatureRemover():
         self.missing_col = None
         self.single_unique = None
         self.collinear_col = None
-        self.low_importance = None
+        self.low_importance_col = None
 
 
 
@@ -18,7 +23,7 @@ class FeatureRemover():
         self.missing_thresh = missing_thresh
 
         # Calculating the fraction of missing values in each column
-        missing_series = (len(a) - np.sum(data==data, axis=0)) / float(len(data))
+        missing_series = (len(data) - np.sum(data==data, axis=0)) / float(len(data))
 
         # Find the columns with a missing fraction above the threshold
         missing_col = np.where(missing_series > missing_thresh)
@@ -52,6 +57,7 @@ class FeatureRemover():
 
 
     def colinear(self, data, corr_thresh = 0.9):
+        self.corr_thresh = corr_thresh
         corr_matrix = np.zeros((data.shape[1], data.shape[1]))
         for i in range(data.shape[1]):
             for j in range(data.shape[1]):
@@ -59,10 +65,43 @@ class FeatureRemover():
         corr_pairs = []
         for i in range(corr_matrix.shape[0]):
             for j in range(i+1, corr_matrix.shape[0]):
-                if abs(corr_matrix [i,j]) > corr_thresh:
+                if abs(corr_matrix [i,j]) > self.corr_thresh:
                     corr_pairs += [(i,j)]
-        print ('%d features with a correlation greater than %0.2f:\n\n' %(len(corr_pairs), corr_thresh))
+        print ('%d features with a correlation greater than %0.2f:\n\n' %(len(corr_pairs), self.corr_thresh))
         for i in corr_pairs:
             print('columns #%d and #%d have a correlation value of %s \n' %(i[0],i[1], corr_matrix[i[0],i[1]]))
         self.collinear_col = corr_pairs
         return self.collinear_col
+
+
+    def low_importance(self, features, target, target_type = "classification", importance_thresh = 1/features.shape[1]):
+
+        self.features = features
+        self.target = target
+        self.importance_thresh = importance_thresh
+
+        X_train, X_test, y_train, y_test = train_test_split(self.features, self.target, test_size = 0.25)
+
+        if target_type == "regression":
+            model = RandomForestRegressor()
+        elif target_type == "classification":
+            model = RandomForestClassifier()
+        else:
+            raise ValueError('Target type must be "regression" or "classification" ')
+
+        model.fit(X_train, y_train)
+        feature_importance = model.feature_importances_
+        feat_imp_norm = feature_importance / np.sum(feature_importance)
+        feat_imp_temp = feat_imp_norm.copy()
+        low_importance = []
+
+        for i in range(feat_imp_temp.shape[0]):
+            low_importance += [feat_imp_norm.argmin()]
+            feat_imp_norm [feat_imp_norm.argmin()]= 10
+
+        for i in range(len(low_importance)):
+            if feature_importance[low_importance[i]] < self.importance_thresh:
+                print ('Column #%d is #%d in the list of low importance features with the importnace value of %s \n' %(low_importance[i], i+1, feature_importance[low_importance[i]]))
+
+        self.low_importance_col = low_importance
+        return self.low_importance_col
