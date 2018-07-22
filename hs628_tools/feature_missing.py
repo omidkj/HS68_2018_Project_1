@@ -18,20 +18,21 @@ class FeatureRemover():
 
         self.missing_thresh = missing_thresh
 
-        # Calculate the fraction of missing in each column
+        # Calculating the fraction of missing values in each column
         missing_series = (len(a) - np.sum(data==data, axis=0)) / float(len(data))
 
-        # Find the columns with a missing percentage above the threshold
+        # Find the columns with a missing fraction above the threshold
         missing_col = np.where(missing_series > missing_thresh)
 
         missing_col = missing_col[0]
 
         self.missing_col = missing_col
 
-        print('%d columns with greater than %0.2f missing values.\n' % (len(self.missing_col), self.missing_thresh))
-        return missing_col
+        print('%d columns with more than %0.2f missing values:\n\n' % (len(self.missing_col), self.missing_thresh))
+        for i in range(len(missing_col)):
+                print ('Colunm # %d with %0.2f missing values.\n' % (missing_col[i], missing_series[missing_col[i]]))
 
-        
+        return missing_col
 
     def single_value(self, data):
         single_unique = []
@@ -40,6 +41,9 @@ class FeatureRemover():
                 single_unique += [i]
 
         self.single_unique = np.array(single_unique)
-        print('%d columns with a single unique value.\n' % len(self.single_unique))
+        print('%d columns with a single unique value:\n\n' % len(self.single_unique))
+        for i in range(len(self.single_unique)):
+            print('Colunm # %d with a single value of %s \n' % (single_unique[i], data[1, single_unique[i]]))
 
         return np.array(single_unique)
+   
