@@ -8,13 +8,12 @@ class FeatureRemover():
         # Numpy arrays recording information about features to remove
         self.missing_col = None
         self.single_unique = None
-        self.collinear = None
+        self.collinear_col = None
         self.low_importance = None
 
-        self.feature_importances = None
 
 
-    def which_missing(self, data, missing_thresh):
+    def which_missing(self, data, missing_thresh=0.4):
 
         self.missing_thresh = missing_thresh
 
@@ -34,6 +33,8 @@ class FeatureRemover():
 
         return missing_col
 
+
+
     def single_value(self, data):
         single_unique = []
         for i in range(data.shape[1]):
@@ -46,4 +47,22 @@ class FeatureRemover():
             print('Colunm # %d with a single value of %s \n' % (single_unique[i], data[1, single_unique[i]]))
 
         return np.array(single_unique)
-   
+
+
+
+
+    def colinear(self, data, corr_thresh = 0.9):
+        corr_matrix = np.zeros((data.shape[1], data.shape[1]))
+        for i in range(data.shape[1]):
+            for j in range(data.shape[1]):
+                corr_matrix[i, j] = np.corrcoef(data[:,i],data[:,j])[0,1]
+        corr_pairs = []
+        for i in range(corr_matrix.shape[0]):
+            for j in range(i+1, corr_matrix.shape[0]):
+                if abs(corr_matrix [i,j]) > corr_thresh:
+                    corr_pairs += [(i,j)]
+        print ('%d features with a correlation greater than %0.2f:\n\n' %(len(corr_pairs), corr_thresh))
+        for i in corr_pairs:
+            print('columns #%d and #%d have a correlation value of %s \n' %(i[0],i[1], corr_matrix[i[0],i[1]]))
+        self.collinear_col = corr_pairs
+        return self.collinear_col
