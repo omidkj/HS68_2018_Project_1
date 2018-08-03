@@ -14,7 +14,7 @@ There are four functions in this package:
 3. collinear: Returns collinear columns with a correlation greater than a specified correlation threshold
 4. low_importance: Returns features that are ranked low importance in the Random Forest Regressor or Classifier
 
-#Notes: The idea adapted from:
+#Notes:  Adapted from:
         https://github.com/WillKoehrsen/feature-selector/blob/master/Feature%20Selector%20Development.ipynb but
         coding with numpy instead of Pandas and using different techniques.
 """
