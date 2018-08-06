@@ -192,6 +192,19 @@ def low_importance(features, target, target_type="classification", importance_th
         feature_importance += model.feature_importances_
     # normalizing the feature importance values
     feat_imp_norm = feature_importance / skf.get_n_splits(features, target)
+    feat_importance = []
+    for i in range(len(feat_imp_norm)):
+        feat_importance += [(i, feat_imp_norm[i])]
+    feat_importance = np.array(feat_importance)
+    feat_importance = feat_importance[feat_importance[:, 1].argsort()]
+    x = feat_importance[:, 0]
+    y = feat_importance[:, 1]
+    x = x.astype(str)
+    fig, axes = plt.subplots(nrows=1, ncols=1, figsize=(8, 8), sharex=True, sharey=True)
+    axes.barh(x, y, align='center', color="orange")
+    axes.set_title("Important Values of features using Random Forest", fontsize=16)
+    plt.tight_layout
+    plt.show()
     # Creating a template (copy) to sort low important features
     feat_imp_temp = feat_imp_norm.copy()
     low_imp = []
@@ -205,9 +218,8 @@ def low_importance(features, target, target_type="classification", importance_th
     low_importance_col = []
     for i in range(len(low_imp)):
         if feat_imp_norm[low_imp[i]] < importance_thresh:
-            print('Column #%d is #%d in the list of low importance features with the importnace value of %s \n' % (
-                low_imp[i], i + 1, feat_imp_norm[low_imp[i]]))
             low_importance_col += [low_imp[i]]
-
+    print('Features with importnace value below the importance threshold of %0.3f: \t%s\n'
+          % (importance_thresh, low_importance_col))
     low_importance_col = np.array(low_importance_col)
     return low_importance_col
