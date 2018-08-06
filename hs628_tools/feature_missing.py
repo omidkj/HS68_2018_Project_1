@@ -107,7 +107,7 @@ def collinear(train_data, corr_thresh=0.9):
             if abs(corr_matrix[i, j]) > corr_thresh:
                 corr_pairs += [(i, j)]
 
-    print('%d features with a correlation greater than %0.2f:\n\n' % (len(np.unique(corr_pairs)), corr_thresh))
+    print('%d feature pairs with a correlation greater than %0.2f:\n\n' % (len(corr_pairs), corr_thresh))
     for i in corr_pairs:
         print('columns #%d and #%d have a correlation value of %s \n' % (i[0], i[1], corr_matrix[i[0], i[1]]))
     collinear_col = np.array(corr_pairs)
