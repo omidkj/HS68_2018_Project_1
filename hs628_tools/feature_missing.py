@@ -1,9 +1,8 @@
 import numpy as np
 from numpy.core.multiarray import ndarray
-from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 from sklearn.model_selection import StratifiedKFold
-from typing import List, Any
+import matplotlib.pyplot as plt
 
 """
 
@@ -20,7 +19,7 @@ There are four functions in this package:
 """
 
 
-def which_missing(data, missing_thresh=0.4):
+def which_missing(data, missing_thresh=None):
     # type: (ndarray, float) -> ndarray
 
     """
@@ -31,12 +30,22 @@ def which_missing(data, missing_thresh=0.4):
             data: numpy ndarray, shape = [n_samples, n_features]
                     observations and features
             missing_thresh: float between 0 and 1
-                    Pre-defined threshold set by the user, default value = 0.4
+                    Pre-defined threshold set by the user, default value None: checks the size of dataset and
+                    choose a default value based on that. If size >1000 : missing_thresh = 0.4, if If size < 100
+                    missing_thresh = 0.15, otherwise missing_thresh = 0.25
         -----------
         Returns:
             An array containing the indices of columns with missing values more than the threshold
     """
-
+    # I've searched a lot but there is no threshold rule for missing data. Here, I tried to consider the data
+    # size in choosing a default value for threshold.
+    if missing_thresh is None:
+        if data.shape[0] > 1000:
+            missing_thresh = 0.4
+        elif data.shape[0] < 100:
+            missing_thresh = 0.15
+        else:
+            missing_thresh = 0.25
     # Calculating the fraction of missing values in each column
     missing_series = (len(data) - np.sum(data == data, axis=0)) / float(len(data))  # type: ndarray
 
