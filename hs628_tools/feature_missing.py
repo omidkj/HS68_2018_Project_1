@@ -24,7 +24,8 @@ def which_missing(data, missing_thresh=0.4):
     # type: (ndarray, float) -> ndarray
 
     """
-    Find and print columns with a fraction of missing data more than pre-defined threshold
+    Find and print information columns with a fraction of missing data more than pre-defined threshold.
+    Then plot all the columns with their missing value ratio against the threshold line.
         -----------
         Parameters:
             data: numpy ndarray, shape = [n_samples, n_features]
@@ -43,11 +44,14 @@ def which_missing(data, missing_thresh=0.4):
     missing_col = np.where(missing_series > missing_thresh)
     # List of indices is located in the 0 element of missing_col array
     missing_col = missing_col[0]
-
+    x = np.array([x for x in range(0, data.shape[1])])
+    plt.bar(x, missing_series)
+    plt.ylabel('missing value ratio')
+    plt.xlabel('Feature indices with missing values')
+    plt.xticks(x)
+    plt.axhline(missing_thresh, color='red', linewidth=5)
+    plt.show()
     print('%d columns with more than %0.2f missing values:\n\n' % (len(missing_col), missing_thresh))
-    for i in range(len(missing_col)):
-        print('Column # %d with %0.2f missing values.\n' % (missing_col[i], missing_series[missing_col[i]]))
-
     return missing_col
 
 
